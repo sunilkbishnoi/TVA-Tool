@@ -83,7 +83,7 @@ export function DeviceMonitor() {
                   <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-primary opacity-75" />
                   <span className="relative inline-flex h-2 w-2 rounded-full bg-primary" />
                 </span>
-                <span className="font-mono font-medium text-foreground">{formatTime(state.now)}</span>
+                <span suppressHydrationWarning className="font-mono font-medium text-foreground">{formatTime(state.now)}</span>
               </span>
 
               <div className="flex items-center gap-1.5">

@@ -306,8 +306,11 @@ export function useDeviceMonitor(refreshMs = 2000) {
 
   /* ---- Battery API ---- */
   useEffect(() => {
-    // @ts-expect-error vendor
-    if (typeof navigator === "undefined" || !navigator.getBattery) return
+    const getBattery =
+      typeof navigator !== "undefined"
+        ? (navigator as Navigator & { getBattery?: () => Promise<any> }).getBattery
+        : undefined
+    if (!getBattery) return
     let battery: any
     const update = () =>
       setState((s) => ({
@@ -320,15 +323,27 @@ export function useDeviceMonitor(refreshMs = 2000) {
           dischargingTime: battery.dischargingTime,
         },
       }))
-    // @ts-expect-error vendor
-    navigator.getBattery().then((b: any) => {
-      battery = b
-      update()
-      b.addEventListener("levelchange", update)
-      b.addEventListener("chargingchange", update)
-      b.addEventListener("chargingtimechange", update)
-      b.addEventListener("dischargingtimechange", update)
-    })
+    getBattery()
+      .then((b: any) => {
+        battery = b
+        update()
+        b.addEventListener("levelchange", update)
+        b.addEventListener("chargingchange", update)
+        b.addEventListener("chargingtimechange", update)
+        b.addEventListener("dischargingtimechange", update)
+      })
+      .catch(() => {
+        setState((s) => ({
+          ...s,
+          battery: {
+            supported: false,
+            level: null,
+            charging: null,
+            chargingTime: null,
+            dischargingTime: null,
+          },
+        }))
+      })
     return () => {
       if (!battery) return
       battery.removeEventListener("levelchange", update)
