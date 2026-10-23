@@ -26,6 +26,7 @@ import { PermissionsPanel } from "./permissions-panel"
 import { ControlsPanel } from "./controls-panel"
 import { MicPanel } from "./mic-panel"
 import { SecurityAuditPanel } from "./security-audit-panel"
+import { SecurityCenter } from "./security-center"
 
 const REFRESH_OPTIONS = [
   { label: "1s", value: 1000 },
@@ -105,6 +106,21 @@ export function DeviceMonitor() {
           </div>
         </header>
 
+        {/* Cybersecurity tools */}
+        <section aria-labelledby="security-heading" className="mb-6">
+          <div className="mb-3 flex items-end justify-between gap-3">
+            <div>
+              <p className="tva-label text-[10px] text-muted-foreground">Security operations</p>
+              <h2 id="security-heading" className="text-xl font-bold text-foreground">Cybersecurity tools</h2>
+            </div>
+            <p className="hidden max-w-xs text-right text-xs text-muted-foreground sm:block">Practical checks that show what websites can access, what is protected, and what needs attention.</p>
+          </div>
+          <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
+            <SecurityCenter />
+            <SecurityAuditPanel />
+          </div>
+        </section>
+
         {/* Live browser telemetry */}
         <div className="mb-3 flex items-end justify-between gap-3">
           <div>
@@ -129,7 +145,6 @@ export function DeviceMonitor() {
           <MicPanel />
           <MediaDevicesPanel />
           <PermissionsPanel />
-          <SecurityAuditPanel />
           <ControlsPanel />
           <HardwarePanel state={state} />
           <DisplayPanel state={state} />
