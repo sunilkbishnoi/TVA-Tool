@@ -26,6 +26,7 @@ import { PermissionsPanel } from "./permissions-panel"
 import { ControlsPanel } from "./controls-panel"
 import { MicPanel } from "./mic-panel"
 import { SecurityAuditPanel } from "./security-audit-panel"
+import { SecurityLearning } from "./security-learning"
 
 const REFRESH_OPTIONS = [
   { label: "1s", value: 1000 },
@@ -71,9 +72,9 @@ export function DeviceMonitor() {
               </div>
               <div>
                 <h1 className="text-xl font-bold leading-none tracking-tight text-foreground">
-                  TVA <span className="text-primary">TEMPAD</span>
+                  TVA <span className="text-primary">SECURITY DESK</span>
                 </h1>
-                <p className="tva-label mt-1 text-[10px] text-muted-foreground">Temporal Variance Monitor</p>
+                <p className="tva-label mt-1 text-[10px] text-muted-foreground">Cyber security orientation &amp; browser safety lab</p>
               </div>
             </div>
 
@@ -104,6 +105,17 @@ export function DeviceMonitor() {
             </div>
           </div>
         </header>
+
+        <SecurityLearning />
+
+        {/* Live browser telemetry lab */}
+        <div className="mb-3 flex items-end justify-between gap-3">
+          <div>
+            <p className="tva-label text-[10px] text-muted-foreground">Practical lab</p>
+            <h2 className="text-xl font-bold text-foreground">Inspect your browser surface</h2>
+          </div>
+          <p className="hidden max-w-xs text-right text-xs text-muted-foreground sm:block">These panels explain real browser permissions and capabilities. Review them, then remove access you do not need.</p>
+        </div>
 
         {/* Telemetry chart spans full width */}
         <div className="mb-5">
