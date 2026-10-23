@@ -232,14 +232,15 @@ function readBrowser(): BrowserInfo {
 }
 
 function initialState(): DeviceState {
-  // Keep the first render deterministic across server and client. The live clock
-  // starts in the browser effect below, after hydration has completed.
+  // Do not read browser globals during the initial render. Server and client
+  // must produce identical markup; live values are populated in effects after
+  // hydration completes.
   return {
     now: new Date(0),
-    timeZone: typeof Intl !== "undefined" ? Intl.DateTimeFormat().resolvedOptions().timeZone : "UTC",
-    utcOffset: getUtcOffset(),
+    timeZone: "UTC",
+    utcOffset: "UTC+00:00",
     battery: { supported: false, level: null, charging: null, chargingTime: null, dischargingTime: null },
-    network: readNetwork(),
+    network: { online: true, supported: false, effectiveType: null, downlink: null, rtt: null, saveData: null },
     memory: {
       heapSupported: false,
       usedJSHeapSize: null,
@@ -249,9 +250,25 @@ function initialState(): DeviceState {
       storageUsage: null,
       storageQuota: null,
     },
-    display: readDisplay(),
-    hardware: readHardware(),
-    browser: readBrowser(),
+    display: {
+      screenWidth: 0,
+      screenHeight: 0,
+      viewportWidth: 0,
+      viewportHeight: 0,
+      pixelRatio: 1,
+      colorDepth: 24,
+      orientation: "unknown",
+    },
+    hardware: { cpuCores: null, deviceMemory: null, maxTouchPoints: 0, platform: "unknown" },
+    browser: {
+      browser: "Unknown",
+      os: "Unknown",
+      language: "en",
+      languages: [],
+      cookiesEnabled: false,
+      doNotTrack: "unspecified",
+      userAgent: "",
+    },
     fps: 0,
     latency: null,
   }
