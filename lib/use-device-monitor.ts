@@ -232,8 +232,10 @@ function readBrowser(): BrowserInfo {
 }
 
 function initialState(): DeviceState {
+  // Keep the first render deterministic across server and client. The live clock
+  // starts in the browser effect below, after hydration has completed.
   return {
-    now: new Date(),
+    now: new Date(0),
     timeZone: typeof Intl !== "undefined" ? Intl.DateTimeFormat().resolvedOptions().timeZone : "UTC",
     utcOffset: getUtcOffset(),
     battery: { supported: false, level: null, charging: null, chargingTime: null, dischargingTime: null },
@@ -270,6 +272,7 @@ export function useDeviceMonitor(refreshMs = 2000) {
   useEffect(() => {
     setState((s) => ({
       ...s,
+      now: new Date(),
       browser: readBrowser(),
       hardware: readHardware(),
       display: readDisplay(),

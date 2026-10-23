@@ -229,7 +229,6 @@ export function useWakeLock() {
       return
     }
     try {
-      // @ts-expect-error wakeLock typing varies
       const sentinel: WakeLockSentinel = await navigator.wakeLock.request("screen")
       lockRef.current = sentinel
       setActive(true)
