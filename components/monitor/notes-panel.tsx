@@ -21,7 +21,10 @@ export function NotesPanel() {
   const add = () => {
     const text = draft.trim()
     if (!text) return
-    setNotes([{ id: crypto.randomUUID(), text, createdAt: Date.now() }, ...notes])
+    const id = typeof crypto !== "undefined" && "randomUUID" in crypto
+      ? crypto.randomUUID()
+      : `${Date.now()}-${Math.random().toString(36).slice(2)}`
+    setNotes([{ id, text, createdAt: Date.now() }, ...notes])
     setDraft("")
   }
 
@@ -33,7 +36,9 @@ export function NotesPanel() {
         <Input
           value={draft}
           onChange={(e) => setDraft(e.target.value)}
-          onKeyDown={(e) => e.key === "Enter" && add()}
+          onKeyDown={(e) => {
+            if (e.key === "Enter" && !e.nativeEvent.isComposing && e.keyCode !== 229) add()
+          }}
           placeholder="Log a temporal observation…"
           className="border-border bg-background text-foreground placeholder:text-muted-foreground"
         />

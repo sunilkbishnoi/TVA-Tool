@@ -232,12 +232,15 @@ function readBrowser(): BrowserInfo {
 }
 
 function initialState(): DeviceState {
+  // Do not read browser globals during the initial render. Server and client
+  // must produce identical markup; live values are populated in effects after
+  // hydration completes.
   return {
-    now: new Date(),
-    timeZone: typeof Intl !== "undefined" ? Intl.DateTimeFormat().resolvedOptions().timeZone : "UTC",
-    utcOffset: getUtcOffset(),
+    now: new Date(0),
+    timeZone: "UTC",
+    utcOffset: "UTC+00:00",
     battery: { supported: false, level: null, charging: null, chargingTime: null, dischargingTime: null },
-    network: readNetwork(),
+    network: { online: true, supported: false, effectiveType: null, downlink: null, rtt: null, saveData: null },
     memory: {
       heapSupported: false,
       usedJSHeapSize: null,
@@ -247,9 +250,25 @@ function initialState(): DeviceState {
       storageUsage: null,
       storageQuota: null,
     },
-    display: readDisplay(),
-    hardware: readHardware(),
-    browser: readBrowser(),
+    display: {
+      screenWidth: 0,
+      screenHeight: 0,
+      viewportWidth: 0,
+      viewportHeight: 0,
+      pixelRatio: 1,
+      colorDepth: 24,
+      orientation: "unknown",
+    },
+    hardware: { cpuCores: null, deviceMemory: null, maxTouchPoints: 0, platform: "unknown" },
+    browser: {
+      browser: "Unknown",
+      os: "Unknown",
+      language: "en",
+      languages: [],
+      cookiesEnabled: false,
+      doNotTrack: "unspecified",
+      userAgent: "",
+    },
     fps: 0,
     latency: null,
   }
@@ -270,6 +289,7 @@ export function useDeviceMonitor(refreshMs = 2000) {
   useEffect(() => {
     setState((s) => ({
       ...s,
+      now: new Date(),
       browser: readBrowser(),
       hardware: readHardware(),
       display: readDisplay(),
@@ -286,8 +306,11 @@ export function useDeviceMonitor(refreshMs = 2000) {
 
   /* ---- Battery API ---- */
   useEffect(() => {
-    // @ts-expect-error vendor
-    if (typeof navigator === "undefined" || !navigator.getBattery) return
+    const getBattery =
+      typeof navigator !== "undefined"
+        ? (navigator as Navigator & { getBattery?: () => Promise<any> }).getBattery
+        : undefined
+    if (!getBattery) return
     let battery: any
     const update = () =>
       setState((s) => ({
@@ -300,15 +323,27 @@ export function useDeviceMonitor(refreshMs = 2000) {
           dischargingTime: battery.dischargingTime,
         },
       }))
-    // @ts-expect-error vendor
-    navigator.getBattery().then((b: any) => {
-      battery = b
-      update()
-      b.addEventListener("levelchange", update)
-      b.addEventListener("chargingchange", update)
-      b.addEventListener("chargingtimechange", update)
-      b.addEventListener("dischargingtimechange", update)
-    })
+    getBattery()
+      .then((b: any) => {
+        battery = b
+        update()
+        b.addEventListener("levelchange", update)
+        b.addEventListener("chargingchange", update)
+        b.addEventListener("chargingtimechange", update)
+        b.addEventListener("dischargingtimechange", update)
+      })
+      .catch(() => {
+        setState((s) => ({
+          ...s,
+          battery: {
+            supported: false,
+            level: null,
+            charging: null,
+            chargingTime: null,
+            dischargingTime: null,
+          },
+        }))
+      })
     return () => {
       if (!battery) return
       battery.removeEventListener("levelchange", update)
