@@ -24,6 +24,7 @@ import { MediaDevicesPanel } from "./media-devices-panel"
 import { PermissionsPanel } from "./permissions-panel"
 import { ControlsPanel } from "./controls-panel"
 import { MicPanel } from "./mic-panel"
+import { SecurityAuditPanel } from "./security-audit-panel"
 
 const REFRESH_OPTIONS = [
   { label: "1s", value: 1000 },
@@ -97,6 +98,7 @@ export function DeviceMonitor() {
           <MicPanel />
           <MediaDevicesPanel />
           <PermissionsPanel />
+          <SecurityAuditPanel />
           <ControlsPanel />
           <HardwarePanel state={state} />
           <DisplayPanel state={state} />

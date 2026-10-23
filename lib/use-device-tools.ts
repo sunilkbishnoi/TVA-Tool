@@ -148,7 +148,7 @@ export function usePermissions() {
       return
     }
     let active = true
-    const statuses: PermissionStatus[] = []
+    const listeners: Array<{ status: PermissionStatus; onChange: () => void }> = []
     const run = async () => {
       for (const name of PERMISSION_NAMES) {
         try {
@@ -157,7 +157,7 @@ export function usePermissions() {
           setPerms((p) => ({ ...p, [name]: status.state as PermStatus }))
           const onChange = () => setPerms((p) => ({ ...p, [name]: status.state as PermStatus }))
           status.addEventListener("change", onChange)
-          statuses.push(status)
+          listeners.push({ status, onChange })
         } catch {
           if (!active) return
           setPerms((p) => ({ ...p, [name]: "unsupported" }))
@@ -167,7 +167,7 @@ export function usePermissions() {
     run()
     return () => {
       active = false
-      statuses.forEach((s) => (s.onchange = null))
+      listeners.forEach(({ status, onChange }) => status.removeEventListener("change", onChange))
     }
   }, [])
 
