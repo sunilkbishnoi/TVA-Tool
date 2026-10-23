@@ -1,5 +1,6 @@
 "use client"
 
+import { useEffect, useState } from "react"
 import { Gauge, Hourglass } from "lucide-react"
 import { useDeviceMonitor } from "@/lib/use-device-monitor"
 import { useLocalStorage } from "@/lib/use-local-storage"
@@ -34,8 +35,29 @@ const REFRESH_OPTIONS = [
 ]
 
 export function DeviceMonitor() {
+  const [mounted, setMounted] = useState(false)
   const { value: refreshMs, setValue: setRefreshMs } = useLocalStorage<number>("tempad:refresh", 2000)
   const { state, history } = useDeviceMonitor(refreshMs)
+
+  useEffect(() => {
+    setMounted(true)
+  }, [])
+
+  if (!mounted) {
+    return (
+      <div className="min-h-screen text-foreground" aria-busy="true" aria-label="Loading TVA TemPad">
+        <div className="mx-auto max-w-7xl px-3 py-5 sm:px-4 lg:px-8">
+          <div className="h-24 animate-pulse rounded-md border-2 border-border bg-card" />
+          <div className="mt-5 h-48 animate-pulse rounded-md border-2 border-border bg-card" />
+          <div className="mt-5 grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
+            {Array.from({ length: 6 }, (_, index) => (
+              <div key={index} className="h-40 animate-pulse rounded-md border-2 border-border bg-card" />
+            ))}
+          </div>
+        </div>
+      </div>
+    )
+  }
 
   return (
     <div className="min-h-screen text-foreground">
